@@ -8,20 +8,20 @@
 import UIKit
 
 func globalAsyncFunction() async {
-  Task { // crash with libgmalloc enabled at this line on iOS <= 15.5
+  Task { // crash with libgmalloc enabled at this line on iOS < 16
     
   }
 }
 
 class MyClass {
   func asyncFunction() async {
-    Task { // crash with libgmalloc enabled at this line on iOS <= 15.5
+    Task { // crash with libgmalloc enabled at this line on iOS < 16
       
     }
   }
   
   func syncFunction() {
-    Task {
+    Task { // crash with libgmalloc enabled at this line on iOS < 16
       
     }
   }
@@ -45,7 +45,8 @@ class ViewController: UIViewController {
 //    willCauseHeapCorruption3()
 //    willCauseHeapCorruption4()
 //    willCauseHeapCorruption5()
-    willCauseHeapCorruption6();
+//    willCauseHeapCorruption6()
+//    willCauseHeapCorruption7()
   }
 
   func willCauseHeapCorruption1() {
@@ -70,7 +71,7 @@ class ViewController: UIViewController {
     }
 
     Task { @MyGlobalActor in
-      Task { // crash with libgmalloc enabled at this line on iOS <= 15.5
+      Task { // crash with libgmalloc enabled at this line on iOS < 16
         
       }
     }
@@ -78,7 +79,7 @@ class ViewController: UIViewController {
   
   func willCauseHeapCorruption4() {
     runSendableClosure {
-      Task { // crash with libgmalloc enabled at this line on iOS <= 15.5
+      Task { // crash with libgmalloc enabled at this line on iOS < 16
       }
     }
   }
@@ -95,6 +96,20 @@ class ViewController: UIViewController {
     Task {
       let c = MyClass()
       c.syncFunction()
+    }
+  }
+  
+  func willCauseHeapCorruption7() {
+    actor MyActor {
+      func createTask() {
+        Task { // crash with libgmalloc enabled at this line on iOS < 16
+          
+        }
+      }
+    }
+    Task {
+      let a = MyActor()
+      await a.createTask()
     }
   }
 
