@@ -38,8 +38,9 @@ class ViewController: UIViewController {
     ok0()
     ok1()
     ok2()
-    ok3()
     // BUG: Uncomment any to cause crash with libgmalloc enabled
+//    mayCauseHeapCorruption1()
+//    mayCauseHeapCorruption2()
 //    willCauseHeapCorruption1()
 //    willCauseHeapCorruption2()
 //    willCauseHeapCorruption3()
@@ -87,7 +88,7 @@ class ViewController: UIViewController {
   func willCauseHeapCorruption5() {
     Task.detached {
       Task {
-        
+        print("Hello")
       }
     }
   }
@@ -113,6 +114,24 @@ class ViewController: UIViewController {
     }
   }
 
+  func mayCauseHeapCorruption1() {
+    DispatchQueue.global().async {
+      Task {
+        
+      }
+    }
+  }
+  
+  func mayCauseHeapCorruption2() {
+    DispatchQueue.global().async {
+      Task {
+        Task {
+          
+        }
+      }
+    }
+  }
+
   func ok0() {
     Task {
       
@@ -126,21 +145,12 @@ class ViewController: UIViewController {
       }
     }
   }
-  
+
   func ok2() {
-    DispatchQueue.global().async {
+    Task.detached {
+      let context = 12
       Task {
-        
-      }
-    }
-  }
-  
-  func ok3() {
-    DispatchQueue.global().async {
-      Task {
-        Task {
-          
-        }
+        print("Hello: \(context)")
       }
     }
   }
